@@ -82,8 +82,8 @@
 >
 >| 机型类型                     | 平均耗时范围        | 最大耗时   |
 >|------------------------|---------------------|------------|
->| `其他所有机型` | `22min ~ 33min` | `35min`|
->| `特殊机型eg:一加11-A14;一加11-A13`| `1h08min ~ 1h17min` | `1h23min` |
+>| `其他所有机型` | `19min ~ 29min` | `35min`|
+>| `特殊机型eg:一加11-A14;一加11-A13`| `55min ~ 1h17min` | `1h23min` |
 > </details>
 > 
 > <details>
@@ -92,10 +92,10 @@
 >
 >| 机型类型             | 平均耗时范围           | 最大耗时   |
 >|----------------------|------------------------|------------|
->| `sm8450,sm8475,sm8550` | `30min ~ 35min`| `45min`    |
->| `sm7675,sm7550,sm8650` | `1h01min ~ 1h12min`| `1h28min` |
->| `sm8750+`| `2h01min ~ 2h22min`| `2h45min`     |
->| `特殊机型eg:一加11-A14;一加11-A13`| `1h14min ~ 1h28min`| `1h32min` |
+>| `sm8450,sm8475,sm8550` | `29min ~ 35min`| `45min`    |
+>| `sm7675,sm7550,sm8650` | `59min ~ 1h12min`| `1h28min` |
+>| `sm8750+`| `1h55min ~ 2h22min`| `2h27min`     |
+>| `特殊机型eg:一加11-A14;一加11-A13`| `1h1min ~ 1h28min`| `1h32min` |
 >
 ></details>
 >也就是说,如果你跑的时长超过了对应机型的最高时间,请尝试重新跑并查看step确保不是官方自己的问题
@@ -111,7 +111,6 @@
 >
 >如果你开启了``ZRAM``算法,请在刷入``Anykernel3``重启**前**安装``ZRAM``模块,部分参数请自行调整。另外``5.10``内核暂不支持开启``ZRAM``算法,因为没有找到``zram.ko``路径  
 >
->**我们注意到,``sm8650``的部分机型在更新``830/831``后内核小版本改变导致无法开机,请等待上游源码的更新**   
 
 ------
  
@@ -138,10 +137,8 @@ AnyKernel3_SukiSUUltra_12896_oneplus_ace2pro_Android15.0.0_KPM_VFS.zip
 AnyKernel3_SukiSUUltra_12896_oneplus_13_Android15.0.2_KPM_VFS.zip
 AnyKernel3_SukiSUUltra_12896_oneplus_11_Android14.1.0_KPM_VFS.zip
 ``` 
---新增 `dir4`、`dir5` 路径用于支持 `sm8750` 和部分机型开启 `ZRAM` 后的新路径（比如 `ace2p`、`13T`）[@ShirkNeko](https://github.com/ShirkNeko)  
 --添加 `zram` 模块的 `LZ4K` 压缩算法支持[@ShirkNeko](https://github.com/ShirkNeko)  
 --同步 `susfs` 模块上游下载频道的变化，解决无法下载的问题  
---优化 `sm8750`、`sm7675` 的 `build` 方案  
---新增 `dir3` 路径用于支持 `sm8475`（比如 `ace2`）  
+--优化 `sm8750`、`sm7675` 的 `build` 方案    
 --支持自动下载最新 `CI/Release` 的 `susfs` 模块并调用 `ksud` 安装、自动获取管理器`CI-APK`解压到`Anykernel3`但不安装  
 --支持 `KPM`（无需任何修改复制;自选是否开启）、`VFS HOOK`（自选是否开启）  
