@@ -206,6 +206,7 @@ jobs:
               sed -i "\$s|echo \"\\\$res\"|echo \"\$res-${SUFFIX}\"|" "$path"
                 if [[ -f ./kernel_platform/build_with_bazel.py ]]; then
                   echo "使用官方脚本编译且当使用 build_with_bazel 时，可能受特殊符号数量限制，编译失败请修改"
+                  echo "When using the official script and building with build_with_bazel, the build may fail due to a limit on the number of special characters. Please modify the configuration if that happens."
                 fi
             fi
           done
@@ -250,10 +251,10 @@ jobs:
         run: |
           feil="${{ github.event.inputs.FEIL }}"
           cpu="${{ needs.get-config.outputs.CPU }}"
-          mkdir -p .repo/manifests_fallback_Numbersf
+          mkdir -p .repo/manifests_fallback
           echo "Downloading manifest $feil.xml from branch oneplus/$cpu..."
           curl -LO --retry 5 --retry-delay 2 --retry-connrefused "https://raw.githubusercontent.com/OnePlusOSS/kernel_manifest/oneplus/$cpu/$feil.xml"
-          mv "$feil.xml" ".repo/manifests_fallback_Numbersf/${feil}.xml"
+          mv "$feil.xml" ".repo/manifests_fallback/${feil}.xml"
 
       # 添加 SukiSU Ultra
       - name: Add KernelSU-SukiSU Ultra
@@ -299,7 +300,7 @@ jobs:
           feil="${{ github.event.inputs.FEIL }}"
           TRUSTY_EXISTS="false"
           if [[ "$KERNEL_VERSION" == "6.6" ]]; then
-            if grep -qr 'common-modules/trusty' "$GITHUB_WORKSPACE/.repo/manifests_fallback_Numbersf/${feil}.xml"; then
+            if grep -qr 'common-modules/trusty' "$GITHUB_WORKSPACE/.repo/manifests_fallback/${feil}.xml"; then
               TRUSTY_EXISTS="true"
             fi
             echo "trusty_exists=$TRUSTY_EXISTS" >> $GITHUB_OUTPUT
@@ -520,6 +521,8 @@ jobs:
 
           # 使用官方脚本的 sm8750，选择性复制其它镜像文件
           if [ -n "$dir2" ] && [ "${{ needs.get-config.outputs.CPU }}" = "sm8750" ] && [ "${{ github.event.inputs.FAST_BUILD }}" = "false" ]; then
+            echo "当前正在使用官方脚本构建 sm8750，需额外复制一些其它镜像文件：dtbo.img、system_dlkm.img、vendor_dlkm.img、vendor_boot.img。请注意，如果你在刷完官方脚本构建后想换成极速构建，请还原这些分区！"
+            echo "You are currently building sm8750 with the official script. Additional image files will be copied: dtbo.img, system_dlkm.img, vendor_dlkm.img, vendor_boot.img. Please note: If you switch to fast build after flashing this build, make sure to restore these partitions!"
             for file in dtbo.img system_dlkm.erofs.img vendor_dlkm.img vendor_boot.img; do
               if [ -f "$dir2$file" ]; then
                 target_name="$file"
@@ -602,18 +605,18 @@ jobs:
             fi
           fi
 
-      # 从一加源码中获取适用的 Android 版本信息，注意是系统 Android 版本而非你填写的内核 Android 版本，非一加官方源码可能需要修改或删除这一步
       - name: Set zip suffix
         id: suffix
         run: |
           echo "value=${{ github.event.inputs.VFS == 'true' && '_VFS' || '' }}${{ github.event.inputs.ZRAM == 'true' && '_LZ4KD' || '' }}${{ github.event.inputs.KPM == 'true' && '_KPM' || '' }}${{ github.event.inputs.SCHED== 'true' && '_SCHED' || '' }}" >> $GITHUB_OUTPUT
 
+      # 从一加源码中获取适用的 Android 版本信息，注意是系统 Android 版本而非你填写的内核 Android 版本，非一加官方源码可能需要修改或删除这一步
       - name: Auto map FEIL to Android version by manifest
         id: feil_clean
         run: |
           feil="${{ github.event.inputs.FEIL }}"
           cpu="${{ needs.get-config.outputs.CPU }}"
-          xml=".repo/manifests_fallback_Numbersf/${feil}.xml"
+          xml=".repo/manifests_fallback/${feil}.xml"
           cd $GITHUB_WORKSPACE
           # 去掉末尾的 _x（只删一个）
           feil_base=$(echo "$feil" | sed -E 's/_[a-z]$//')
@@ -675,10 +678,10 @@ jobs:
             if [ "$(realpath "$zram_path")" != "$(realpath "$target")" ]; then
               cp "$zram_path" "$target"
             else
-              echo "源文件与目标相同，跳过复制"
+              echo "源文件与目标路径相同，跳过复制"
             fi
           else
-            echo "未找到 zram.ko 文件，构建可能失败"
+            echo "未找到 zram.ko 文件，可能是未支持的内核版本或者未成功构建"
             exit 1
           fi
 
